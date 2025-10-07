@@ -17,7 +17,7 @@ This backend service automates the initial candidate screening process using an 
 * **Asynchronous Processing**: Celery & Redis
 * **File Storage**: Amazon S3 (via `django-storages` and `boto3`)
 * **Vector Database**: ChromaDB
-* **PDF Processing**: pdfplumber
+* **PDF Processing**: pypdf (file-like extractor)
 * **LLM Interaction**: OpenRouter/OpenAI
 
 ## Installation & Setup Guide
@@ -123,7 +123,7 @@ Here is the basic workflow to evaluate a candidate:
 4.  **Start the Evaluation**: Send a `POST` request to `/api/evaluate` with all the IDs you have collected.
     ```json
     {
-      "reference_set_id": 1,
+      "reference_set_id": "0ce4b974-6897-4ff7-8eed-4f08f678cda4",
       "job_title": "Backend Engineer",
       "cv_document_id": "uuid-from-step-3",
       "report_document_id": "uuid-from-step-3"
