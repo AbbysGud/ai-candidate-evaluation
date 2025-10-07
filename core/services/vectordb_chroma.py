@@ -1,5 +1,3 @@
-from typing import Dict, List, Tuple
-
 from chromadb import PersistentClient
 from chromadb.config import Settings
 
@@ -7,7 +5,7 @@ from chromadb.config import Settings
 class ChromaVectorDB:
     def __init__(self, persist_dir: str):
         self.client = PersistentClient(path=persist_dir, settings=Settings())
-        self._cols: Dict[str, object] = {}
+        self._cols: dict[str, object] = {}
 
     def _get(self, name: str):
         if name not in self._cols:
@@ -16,7 +14,7 @@ class ChromaVectorDB:
             )
         return self._cols[name]
 
-    def upsert(self, collection: str, vectors: List[List[float]], payloads: List[Dict]):
+    def upsert(self, collection: str, vectors: list[list[float]], payloads: list[dict]):
         col = self._get(collection)
         ids = [p["id"] for p in payloads]
         metadatas = [
@@ -31,7 +29,7 @@ class ChromaVectorDB:
         ]
         col.upsert(embeddings=vectors, metadatas=metadatas, ids=ids)  # type: ignore
 
-    def query(self, collection: str, qv: List[float], top_k: int) -> List[Tuple[float, Dict]]:
+    def query(self, collection: str, qv: list[float], top_k: int) -> list[tuple[float, dict]]:
         col = self._get(collection)
         res = col.query(query_embeddings=[qv], n_results=top_k)  # type: ignore
         out = []
@@ -42,8 +40,8 @@ class ChromaVectorDB:
                 out.append((score, md))
         return out
 
-    def stats(self) -> Dict[str, int]:
-        stats: Dict[str, int] = {}
+    def stats(self) -> dict[str, int]:
+        stats: dict[str, int] = {}
         for c in self.client.list_collections():
             try:
                 stats[c.name] = c.count()  # type: ignore[attr-defined]

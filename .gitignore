@@ -3,3 +3,6 @@ __pycache__/
 *.pyc
 .env
 .vscode/
+/media/
+chroma/
+db.sqlite3

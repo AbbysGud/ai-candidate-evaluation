@@ -1,6 +1,6 @@
 import json
 from collections import defaultdict
-from typing import Any, Dict, List  # noqa: UP035
+from typing import Any  # noqa: UP035
 
 from .llm_client import LLMClient
 from .prompts import CV_PROMPT, FINAL_PROMPT, PROJECT_PROMPT
@@ -22,7 +22,7 @@ PROJECT_BUCKETS = {
 }
 
 
-def _score_buckets(texts: List[str], buckets: Dict[str, tuple[list[str], float]], scale5: bool):
+def _score_buckets(texts: list[str], buckets: dict[str, tuple[list[str], float]], scale5: bool):
     text = " ".join(texts).lower()
     total = 0.0
     for _, (keys, w) in buckets.items():
@@ -36,7 +36,7 @@ def _score_buckets(texts: List[str], buckets: Dict[str, tuple[list[str], float]]
 llm = LLMClient()
 
 
-def _safe_format(tmpl: str, mapping: Dict[str, Any]) -> str:
+def _safe_format(tmpl: str, mapping: dict[str, Any]) -> str:
     d = defaultdict(str, **mapping)
     return tmpl.format_map(d)
 

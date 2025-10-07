@@ -7,7 +7,7 @@ from rest_framework.parsers import FormParser, MultiPartParser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .models import Document, Job
+from .models import Job
 from .serializers import UploadSerializer
 from .services.retrieval import retrieval  # type: ignore
 
@@ -66,7 +66,6 @@ class UploadBothView(APIView):
 
 class JobDetailView(APIView):
     def get(self, request, job_id):
-        # Hindari N+1
         job = get_object_or_404(Job.objects.select_related("evaluation"), id=job_id)
 
         data = {
@@ -77,7 +76,6 @@ class JobDetailView(APIView):
             "completed_at": job.completed_at,
         }
 
-        # Hanya tampilkan hasil jika sudah completed dan evaluation ada
         if job.status == "completed" and getattr(job, "evaluation", None):
             ev = job.evaluation  # type: ignore
             data["evaluation"] = {

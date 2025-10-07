@@ -1,6 +1,6 @@
 from django.urls import path
 
-from .views import UploadBothView, health, JobDetailView
+from .views import JobDetailView, UploadBothView, health
 from .views_eval import EvaluateNowView
 from .views_reference import UploadReferenceView
 from .views_reference_set import ReferenceSetView

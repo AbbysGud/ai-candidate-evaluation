@@ -1,7 +1,5 @@
 import os
-from pathlib import Path
 
-from django.conf import settings
 from django.core.files.storage import default_storage
 from django.utils import timezone
 from rest_framework import status
@@ -12,7 +10,6 @@ from .models import Document, ReferenceSet
 from .serializers_reference import UploadReferenceSerializer
 from .services.collections import ref_collection  # type: ignore
 from .services.retrieval import retrieval  # type: ignore
-from .services.text_extractor import extract_text_auto  # type: ignore
 
 
 class UploadReferenceView(APIView):

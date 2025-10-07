@@ -1,6 +1,5 @@
 import logging
 from pathlib import Path
-from typing import Dict, List  # noqa: UP035
 
 from django.conf import settings
 from django.core.files.storage import default_storage
@@ -35,7 +34,7 @@ def _guess_mime(mime: str, storage_path: str) -> str:
 
 
 class RetrievalService:
-    def __init__(self, vdb=None, embedder=None):
+    def __init__(self, embedder=None):
         self.embedder = embedder or GLOBAL_EMBEDDER
 
     def _read_text(self, storage_path: str, mime: str) -> str:
@@ -81,7 +80,7 @@ class RetrievalService:
         _vdb().upsert(collection, vectors, payloads)
         return len(chunks)
 
-    def search(self, collection: str, query: str, top_k=5) -> List[Dict]:
+    def search(self, collection: str, query: str, top_k=5) -> list[dict]:
         qv = self.embedder.embed_query(query)
         hits = _vdb().query(collection, qv, top_k=top_k)
         return [{"score": s, **p} for s, p in hits]

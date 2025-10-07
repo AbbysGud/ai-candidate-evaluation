@@ -1,6 +1,5 @@
-# core/services/rag.py
-from .retrieval import retrieval
 from .collections import ref_collection
+from .retrieval import retrieval
 
 
 def fetch_cv_context(job_title: str, reference_set_id: str, top_k=6):

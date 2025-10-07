@@ -2,7 +2,7 @@ import hashlib
 
 from rest_framework import serializers
 
-from .models import Document, Job
+from .models import Document
 
 
 class UploadSerializer(serializers.Serializer):
