@@ -1,5 +1,4 @@
 from django.core.files.storage import default_storage
-from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from rest_framework import status
@@ -10,10 +9,6 @@ from rest_framework.views import APIView
 from .models import Job
 from .serializers import UploadSerializer
 from .services.retrieval import retrieval  # type: ignore
-
-
-def health(request):
-    return JsonResponse({"status": "ok"})
 
 
 class UploadBothView(APIView):
@@ -27,13 +22,11 @@ class UploadBothView(APIView):
         cv_file = request.FILES["cv"]
         report_file = request.FILES["report"]
 
-        # simpan metadata dulu (checksum dsb)
         cv_doc = ser._save_doc(cv_file, "cv")  # pyright: ignore[reportAttributeAccessIssue]
         report_doc = ser._save_doc(  # pyright: ignore[reportAttributeAccessIssue]
             report_file, "report"
         )
 
-        # simpan fisik file
         today = timezone.now().strftime("%Y/%m/%d")
         cv_path = default_storage.save(f"uploads/{today}/{cv_doc.id}_{cv_file.name}", cv_file)
         report_path = default_storage.save(

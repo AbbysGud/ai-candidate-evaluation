@@ -10,7 +10,6 @@ class UploadSerializer(serializers.Serializer):
     report = serializers.FileField(required=True)
 
     def _save_doc(self, f, doc_type: str) -> Document:
-        # hitung checksum
         sha = hashlib.sha256()
         for chunk in f.chunks():
             sha.update(chunk)
@@ -21,7 +20,7 @@ class UploadSerializer(serializers.Serializer):
             filename=f.name,
             mime_type=getattr(f, "content_type", "application/octet-stream"),
             sha256_checksum=checksum,
-            storage_path="",  # akan diisi setelah FileField disimpan oleh view
+            storage_path="",
         )
         return d
 

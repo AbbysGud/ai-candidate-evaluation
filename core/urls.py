@@ -1,6 +1,6 @@
 from django.urls import path
 
-from .views import JobDetailView, UploadBothView, health
+from .views import JobDetailView, UploadBothView
 from .views_eval import EvaluateNowView
 from .views_reference import UploadReferenceView
 from .views_reference_set import ReferenceSetView
@@ -8,7 +8,6 @@ from .views_result import ResultView
 from .views_retrieve import IndexStatsView, ReindexAllView, RetrieveView
 
 urlpatterns = [
-    path("health/", health, name="health"),
     path("upload/", UploadBothView.as_view(), name="upload-both"),
     path("upload-reference/", UploadReferenceView.as_view(), name="upload-reference"),
     path("evaluate", EvaluateNowView.as_view(), name="evaluate"),

@@ -31,12 +31,10 @@ class UploadReferenceView(APIView):
             storage_path="",
         )
 
-        # --- SIMPAN VIA STORAGE (S3/GCS/Local) ---
         today = timezone.now().strftime("%Y/%m/%d")
-        safe_name = os.path.basename(f.name)  # sanitasi dari backslash Windows dll
+        safe_name = os.path.basename(f.name)
         rel_path = f"uploads/{today}/{doc.id}_{safe_name}"
 
-        # simpan fisik ke storage backend
         storage_path = default_storage.save(rel_path, f)
 
         doc.storage_path = storage_path.replace("\\", "/")

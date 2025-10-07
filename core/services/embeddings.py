@@ -1,5 +1,3 @@
-from typing import List
-
 try:
     from sentence_transformers import SentenceTransformer
 
@@ -14,8 +12,8 @@ class STEmbedder:
         if _MODEL is None:
             raise RuntimeError(f"SentenceTransformer not available: {_ERR}")
 
-    def embed(self, texts: List[str]) -> List[List[float]]:
+    def embed(self, texts: list[str]) -> list[list[float]]:
         return _MODEL.encode(texts, normalize_embeddings=True).tolist()  # type: ignore
 
-    def embed_query(self, text: str) -> List[float]:
+    def embed_query(self, text: str) -> list[float]:
         return _MODEL.encode([text], normalize_embeddings=True)[0].tolist()  # type: ignore

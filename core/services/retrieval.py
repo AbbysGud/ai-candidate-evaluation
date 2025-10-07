@@ -15,10 +15,6 @@ log = logging.getLogger(__name__)
 GLOBAL_EMBEDDER = STEmbedder()
 
 
-def _vdb():
-    return ChromaVectorDB(persist_dir=str(settings.VDB_DIR))
-
-
 def _guess_mime(mime: str, storage_path: str) -> str:
     m = (mime or "").lower()
     if m and m != "application/octet-stream":
@@ -34,8 +30,9 @@ def _guess_mime(mime: str, storage_path: str) -> str:
 
 
 class RetrievalService:
-    def __init__(self, embedder=None):
+    def __init__(self, embedder=None, vdb: ChromaVectorDB | None = None):
         self.embedder = embedder or GLOBAL_EMBEDDER
+        self.vdb = vdb or ChromaVectorDB(persist_dir=str(settings.VDB_DIR))
 
     def _read_text(self, storage_path: str, mime: str) -> str:
         m2 = _guess_mime(mime, storage_path)
@@ -53,22 +50,26 @@ class RetrievalService:
         log.error("[retrieval] file not found in storage or local path: %s", storage_path)
         return ""
 
-    def index_document(self, collection: str, storage_path: str, mime: str, doc_id: str):
+    def index_document(self, collection: str, storage_path: str, mime: str, doc_id: str) -> int:
         text = self._read_text(storage_path, mime)
+        if not text.strip():
+            log.warning("[retrieval] empty text for %s (%s)", storage_path, mime)
+            return 0
+
         chunks = simple_chunk(text, max_chars=800)
         if not chunks:
             log.warning("[retrieval] no chunks extracted for %s (%s)", storage_path, mime)
             return 0
 
         vectors = self.embedder.embed([c["text"] for c in chunks])
-        payloads = []
         now = str(timezone.now())
+
+        payloads: list[dict] = []
         for i, c in enumerate(chunks):
-            offset = int(c["meta"].get("offset", 0))
-            chunk_id = f"{doc_id}:{i}"
+            offset = int(c.get("meta", {}).get("offset", 0))
             payloads.append(
                 {
-                    "id": chunk_id,
+                    "id": f"{doc_id}:{i}",
                     "doc_id": str(doc_id),
                     "offset": offset,
                     "text": c["text"],
@@ -77,16 +78,16 @@ class RetrievalService:
                 }
             )
 
-        _vdb().upsert(collection, vectors, payloads)
+        self.vdb.upsert(collection, vectors, payloads)
         return len(chunks)
 
-    def search(self, collection: str, query: str, top_k=5) -> list[dict]:
+    def search(self, collection: str, query: str, top_k: int = 5) -> list[dict]:
         qv = self.embedder.embed_query(query)
-        hits = _vdb().query(collection, qv, top_k=top_k)
+        hits = self.vdb.query(collection, qv, top_k=top_k)
         return [{"score": s, **p} for s, p in hits]
 
     def count(self, collection: str) -> int:
-        return _vdb().count(collection)
+        return self.vdb.count(collection)
 
 
 retrieval = RetrievalService()
