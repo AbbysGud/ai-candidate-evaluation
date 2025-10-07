@@ -1,0 +1,4 @@
+CREATE VIRTUAL TABLE embedding_fulltext_search USING fts5(string_value, tokenize='trigram');
+INSERT INTO embedding_fulltext_search (rowid, string_value) SELECT rowid, string_value FROM embedding_metadata;
+DROP TABLE embedding_fulltext;
+InN3X2lkZW50IjogInB5LWNlbGVyeSIsICJzd192ZXIiOiAiNS41LjMiLCAic3dfc3lzIjogIldpbmRvd3MiLCAidGltZXN0YW1wIjogMTc1OTgxNjc1Mi43ODQ5MjAyLCAidHlwZSI6ICJ3b3JrZXItaGVhcnRiZWF0

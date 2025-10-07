@@ -11,9 +11,23 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+VDB_DIR = Path(BASE_DIR) / "chroma"
+VDB_DIR.mkdir(exist_ok=True)
+
+CELERY_BROKER_URL = os.getenv("CELERY_BROKER_URL", "redis://localhost:6379/0")
+CELERY_RESULT_BACKEND = os.getenv("CELERY_RESULT_BACKEND", CELERY_BROKER_URL)
+
+CELERY_TASK_TIME_LIMIT = 900
+CELERY_TASK_SOFT_TIME_LIMIT = 600
+CELERY_TASK_ACKS_LATE = True
+CELERY_WORKER_MAX_TASKS_PER_CHILD = 50
 
 
 # Quick-start development settings - unsuitable for production
@@ -40,18 +54,22 @@ INSTALLED_APPS = [
     "rest_framework",
     "drf_spectacular",
     "corsheaders",
-    "core",
+    # "core",
+    "core.apps.CoreConfig",
+    "storages",
 ]
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
+CORS_ALLOW_ALL_ORIGINS = True
 
 ROOT_URLCONF = "backend.urls"
 
@@ -73,6 +91,35 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "backend.wsgi.application"
 
+REST_FRAMEWORK = {
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+}
+SPECTACULAR_SETTINGS = {
+    "TITLE": "AI Candidate Evaluation API",
+    "DESCRIPTION": "Backend service untuk unggah dokumen & evaluasi",
+    "VERSION": "0.1.0",
+}
+
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media"
+
+TIME_ZONE = "Asia/Jakarta"
+USE_TZ = True
+
+DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
+
+AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID", "")
+AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY", "")
+AWS_STORAGE_BUCKET_NAME = os.getenv("AWS_STORAGE_BUCKET_NAME", "ai-candidate-eval-media")
+AWS_S3_REGION_NAME = os.getenv("AWS_S3_REGION_NAME", "ap-southeast-2")
+AWS_S3_SIGNATURE_VERSION = "s3v4"
+
+AWS_QUERYSTRING_AUTH = True  # URL bertanda tangan (expiring)
+AWS_DEFAULT_ACL = None  # tidak set ACL publik
+MEDIA_URL = "/media/"  # biarkan django-storages generate signed URL via .url()
+
+AWS_S3_FILE_OVERWRITE = False  # file dengan nama sama tidak ditimpa
+AWS_S3_OBJECT_PARAMETERS = {"CacheControl": "max-age=86400"}
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
